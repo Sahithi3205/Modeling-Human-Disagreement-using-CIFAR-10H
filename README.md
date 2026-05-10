@@ -49,7 +49,8 @@ This means:
 
 Official Dataset Repository:
 
-[CIFAR-10H Repository](https://github.com/jcpeterson/cifar-10h?utm_source=chatgpt.com)
+[CIFAR-10H Repository]
+https://github.com/jcpeterson/cifar-10h
 
 
 
@@ -299,7 +300,8 @@ jupyter notebook
 
 # Repository Link
 
-[Project Repository](https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement?utm_source=chatgpt.com)
+[Project Repository]
+https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement
 
 
 # Concepts Used
@@ -328,6 +330,9 @@ The project successfully models human uncertainty using deep learning and modifi
 
 # References
 
-1. [CIFAR-10H Repository](https://github.com/jcpeterson/cifar-10h?utm_source=chatgpt.com)
-2. [CIFAR-10 Dataset Information](https://www.cs.toronto.edu/~kriz/cifar.html?utm_source=chatgpt.com)
-3. [Project GitHub Repository](https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement?utm_source=chatgpt.com)
+1. [CIFAR-10H Repository]
+   https://github.com/jcpeterson/cifar-10h
+2. [CIFAR-10 Dataset Information]
+   https://www.cs.toronto.edu/~kriz/cifar.html
+3. [Project GitHub Repository]
+   https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement
