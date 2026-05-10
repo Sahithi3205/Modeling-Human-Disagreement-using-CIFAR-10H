@@ -1,184 +1,216 @@
-Modeling Human Disagreement using CIFAR-10H
+# Predicting Human Annotator Disagreement using CIFAR-10H
 
-This project explores human uncertainty in image classification using the CIFAR-10H dataset. Unlike traditional image classification tasks that use hard labels, this project trains a deep learning model to predict probability distributions (soft labels) representing disagreement among human annotators.
+## Project Overview
 
-The project uses:
+This project focuses on predicting human disagreement in image classification using the CIFAR-10H dataset. Unlike traditional image classification models that predict only one correct label, this project predicts probability distributions (soft labels) to model human uncertainty and disagreement.
 
-CIFAR-10 → image dataset
-CIFAR-10H → human soft-label distributions
+The project was implemented using PyTorch in Google Colab.
 
-The implementation is built using PyTorch and trained in Google Colab.
+---
 
-Project Objective
+# Datasets Used
 
-Traditional classifiers assume:
+## CIFAR-10
+CIFAR-10 is a standard image classification dataset containing:
+- 60,000 RGB images
+- 10 image classes
+- Image size: 32×32
 
-One image → One correct label
+Classes include:
+- airplane
+- automobile
+- bird
+- cat
+- deer
+- dog
+- frog
+- horse
+- ship
+- truck
 
-However, humans often disagree on ambiguous images.
+---
 
-Example:
-
-Cat: 70%
-Dog: 20%
-Deer: 10%
-
-Instead of predicting a single class, this project predicts a distribution over classes, capturing human perceptual uncertainty.
-
-The CIFAR-10H dataset was introduced to study human uncertainty in image classification.
-
-Dataset Information
-CIFAR-10
-60,000 RGB images
-10 classes
-Image size: 32×32
-50,000 training images
-10,000 test images
-
-CIFAR-10 is one of the most widely used image classification benchmarks.
-
-CIFAR-10H
-
-CIFAR-10H extends CIFAR-10 by providing:
-
-Multiple human annotations per image
-Soft-label distributions
-Human disagreement information
+## CIFAR-10H
+CIFAR-10H is an extension of CIFAR-10 that contains human annotation distributions instead of single labels.
 
 Example soft label:
 
+```python
 [0.6, 0.3, 0.1, 0, 0, ...]
+```
 
-Official dataset repository:
-CIFAR-10H GitHub Repository
+This means:
+- 60% of annotators selected one class
+- 30% selected another class
+- 10% selected a different class
 
-Project Pipeline
-CIFAR-10 Images + CIFAR-10H Labels
-                ↓
-         Data Preprocessing
-                ↓
-        Train / Val / Test Split
-                ↓
-             DataLoader
-                ↓
-           ResNet-18 Model
-                ↓
-           Log Softmax
-                ↓
-        KL Divergence Loss
-                ↓
-           Training Loop
-                ↓
-      Validation + Logging
-                ↓
-           Final Evaluation
-Technologies Used
-Python
-PyTorch
-Torchvision
-NumPy
-Matplotlib
-Google Colab
-Model Architecture
+Official Dataset Repository:  
+https://github.com/jcpeterson/cifar-10h
 
-The project uses ResNet-18 as the base architecture.
+---
 
-Modifications:
+# Project Pipeline
 
-Final fully connected layer modified for 10 classes
-Dropout added for regularization
+```text
+CIFAR-10 Images + CIFAR-10H Soft Labels
+                    ↓
+             Data Preprocessing
+                    ↓
+        Train / Validation / Test Split
+                    ↓
+                 DataLoader
+                    ↓
+               ResNet-18 Model
+                    ↓
+               Log Softmax
+                    ↓
+            KL Divergence Loss
+                    ↓
+               Model Training
+                    ↓
+          Validation and Logging
+                    ↓
+              Final Evaluation
+```
+
+---
+
+# Model Used
+
+The project uses ResNet-18 as the base CNN architecture.
+
+Modifications made:
+- Final fully connected layer changed to output 10 classes
+- Dropout layer added to reduce overfitting
+
+```python
 model.fc = nn.Sequential(
     nn.Dropout(0.3),
     nn.Linear(model.fc.in_features, 10)
 )
-Loss Function
+```
 
-We use:
+---
 
-nn.KLDivLoss(reduction='batchmean')
+# Loss Function
 
-Why KL Divergence?
+KL Divergence Loss was used for training.
 
-CIFAR-10H contains probability distributions
-KL divergence compares distributions
-Better suited for soft-label learning than CrossEntropy
-Training Configuration
-Parameter	Value
-Optimizer	Adam
-Learning Rate	1e-4
-Weight Decay	1e-4
-Epochs	20
-Batch Size	64
-Logging and Evaluation
+```python
+loss_fn = nn.KLDivLoss(reduction='batchmean')
+```
 
-The following were tracked:
+KL Divergence was chosen because CIFAR-10H provides probability distributions instead of hard labels.
 
-Training loss
-Validation loss
-Test loss
+---
 
-Loss curves were plotted to analyze:
+# Training Details
 
-convergence
-overfitting
-generalization
-Sample Output
+| Parameter | Value |
+|-----------|-------|
+| Optimizer | Adam |
+| Learning Rate | 1e-4 |
+| Epochs | 20 |
+| Batch Size | 64 |
+| Weight Decay | 1e-4 |
 
-Example prediction:
+---
 
+# Logging and Evaluation
+
+During training, the following were monitored:
+- Training Loss
+- Validation Loss
+- Test Loss
+
+Loss graphs were plotted to analyze model learning and overfitting.
+
+---
+
+# Sample Output
+
+Example model prediction:
+
+```python
 Prediction: [0.0047, 0.1188, ..., 0.7910, ...]
 Target:     [0, 0, 0, 1, 0, ...]
+```
 
-This demonstrates that the model predicts probability distributions instead of hard labels.
+The model predicts probability distributions instead of a single class label.
 
-Results
+---
 
-Observations:
+# Results
 
-Training loss decreased steadily
-Validation loss remained higher
-Model successfully learned soft-label distributions
-Slight overfitting observed
+### Observations
+- Training loss decreased steadily
+- Validation loss remained higher than training loss
+- Slight overfitting was observed
+- The model successfully learned soft-label distributions
 
-Example test loss:
+Example:
 
+```python
 Test Loss ≈ 1.27
-Key Concepts Used
-Soft Labels
-Human Uncertainty Modeling
-Probability Distributions
-KL Divergence
-Deep Learning
-CNNs
-ResNet-18
-PyTorch Training Pipeline
-Repository Structure
-project/
+```
+
+---
+
+# Repository Structure
+
+```text
+Predcting-Human-Annotator-Disagreement/
 │
-├── data/
-├── models/
 ├── notebooks/
 ├── outputs/
+├── models/
 ├── README.md
-└── requirements.txt
-How to Run
-1. Clone Repository
-git clone https://github.com/jcpeterson/cifar-10h
-2. Install Dependencies
+├── requirements.txt
+└── report/
+```
+
+---
+
+# How to Run
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement.git
+```
+
+## Install Required Libraries
+
+```bash
 pip install torch torchvision numpy matplotlib
-3. Run Notebook
+```
+
+## Run Notebook
 
 Open the notebook in Google Colab and run all cells sequentially.
 
-References
-CIFAR-10H Official Repository
-CIFAR-10H GitHub Repository
-Human uncertainty makes classification more robust
+---
 
-CIFAR-10 Dataset Information
+# Concepts Used
 
-CIFAR-10H TensorFlow Dataset Documentation
+- Soft Labels
+- Human Uncertainty Modeling
+- KL Divergence
+- Deep Learning
+- CNNs
+- ResNet-18
+- PyTorch
 
-Conclusion
+---
 
-This project demonstrates how deep learning models can be trained to capture human disagreement and uncertainty instead of predicting only hard labels. By using soft labels from CIFAR-10H and KL divergence loss, the model learns richer representations of image ambiguity and perceptual uncertainty.
+# Conclusion
+
+This project demonstrates how deep learning models can be trained to capture human disagreement and uncertainty in image classification tasks. Instead of predicting only one correct class, the model learns probability distributions using CIFAR-10H soft labels and KL Divergence loss.
+
+---
+
+# References
+
+1. https://github.com/jcpeterson/cifar-10h  
+2. https://www.cs.toronto.edu/~kriz/cifar.html  
+3. https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement
