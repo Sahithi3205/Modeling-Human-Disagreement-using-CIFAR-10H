@@ -7,11 +7,9 @@ This project focuses on predicting human disagreement in image classification us
 The project was implemented using PyTorch in Google Colab.
 
 
-
-# Datasets Used
+# Datasets Used:
 
 ## CIFAR-10
-
 CIFAR-10 is a standard image classification dataset containing:
 
 * 60,000 RGB images
@@ -30,7 +28,6 @@ CIFAR-10 is a standard image classification dataset containing:
 * horse
 * ship
 * truck
-
 
 
 ## CIFAR-10H
@@ -112,7 +109,6 @@ CIFAR-10 Images + CIFAR-10H Soft Labels
 
 
 
-
 # Model Used
 
 The project uses ResNet-18 as the base CNN architecture.
@@ -129,17 +125,12 @@ The project uses ResNet-18 as the base CNN architecture.
 
 The original ResNet-18 architecture was modified for CIFAR-10 images.
 
-### Modifications Made
+
+## Modifications Made
 
 * Final fully connected layer changed to output 10 classes
 * Dropout layer added to reduce overfitting
 * Small-image optimization for CIFAR-10
-
-
-model.fc = nn.Sequential(
-    nn.Dropout(0.3),
-    nn.Linear(model.fc.in_features, 10)
-)
 
 
 # What is Softmax?
@@ -186,7 +177,34 @@ This project predicts:
 * Human probability distributions
 * Soft labels
 
-So KL Divergence is more suitable than CrossEntropyLoss.
+Jensen-Shannon Divergence (JSD):
+Jensen-Shannon Divergence was also used to compare predicted and target probability distributions.
+
+Why JSD?
+JSD is a symmetric and more stable version of KL Divergence.
+
+It helps:
+measure similarity between distributions
+improve stability during distribution comparison
+better analyze human disagreement patterns
+
+JSD is useful because this project focuses on uncertainty and soft-label learning.
+
+Custom Entropy-Aware Loss:
+A custom entropy-aware loss function was used to handle uncertain and ambiguous samples more effectively.
+
+Why Entropy-Aware Loss?
+
+Some images have:
+low disagreement (clear images)
+high disagreement (ambiguous images)
+
+The entropy-aware loss gives additional importance to:
+difficult samples
+highly uncertain images
+images with greater annotator disagreement
+
+This helps the model better learn human uncertainty and ambiguity.
 
 # Training Details
 
@@ -235,6 +253,8 @@ Purpose of logging:
 Final evaluation was performed using:
 * Test Loss
 * KL Divergence
+* Jensen-Shannon Divergence (JSD)
+* Custom Entropy-Aware Loss
 * Probability distribution comparison
 
 Example:
@@ -322,9 +342,7 @@ https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement
 # Conclusion
 
 This project demonstrates how deep learning models can be trained to capture human disagreement and uncertainty in image classification tasks.
-
 Instead of predicting only one correct class, the model learns probability distributions using CIFAR-10H soft labels and KL Divergence loss.
-
 The project successfully models human uncertainty using deep learning and modified ResNet-18 architecture.
 
 
