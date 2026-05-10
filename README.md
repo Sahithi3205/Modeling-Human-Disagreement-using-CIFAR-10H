@@ -1,4 +1,4 @@
-# Predicting Human Annotator Disagreement 
+# Predicting Human Annotator Disagreement
 
 ## Project Overview
 
@@ -7,45 +7,87 @@ This project focuses on predicting human disagreement in image classification us
 The project was implemented using PyTorch in Google Colab.
 
 
+
 # Datasets Used
 
 ## CIFAR-10
+
 CIFAR-10 is a standard image classification dataset containing:
-- 60,000 RGB images
-- 10 image classes
-- Image size: 32×32
 
-Classes include:
-- airplane
-- automobile
-- bird
-- cat
-- deer
-- dog
-- frog
-- horse
-- ship
-- truck
+* 60,000 RGB images
+* 10 image classes
+* Image size: 32×32
 
----
+### Classes Include
+
+* airplane
+* automobile
+* bird
+* cat
+* deer
+* dog
+* frog
+* horse
+* ship
+* truck
+
+
 
 ## CIFAR-10H
+
 CIFAR-10H is an extension of CIFAR-10 that contains human annotation distributions instead of single labels.
 
-Example soft label:
+### Example Soft Label
 [0.6, 0.3, 0.1, 0, 0, ...]
 
 
 This means:
-- 60% of annotators selected one class
-- 30% selected another class
-- 10% selected a different class
 
-Official Dataset Repository:  
-https://github.com/jcpeterson/cifar-10h
+* 60% of annotators selected one class
+* 30% selected another class
+* 10% selected a different class
+
+Official Dataset Repository:
+
+[CIFAR-10H Repository](https://github.com/jcpeterson/cifar-10h?utm_source=chatgpt.com)
+
+
+
+# Hard Labels vs Soft Labels
+
+## Hard Labels
+
+Hard labels contain only one correct class.
+
+Example:
+[0,0,0,1,0,0,0,0,0,0]
+
+
+Characteristics:
+
+* Only one class is correct
+* No uncertainty
+* Used in traditional classification
+
+
+
+## Soft Labels
+
+Soft labels contain probability distributions across multiple classes.
+
+Example:
+[0.6,0.3,0.1,0,0,...]
+
+Characteristics:
+
+* Multiple classes can have probability
+* Captures human uncertainty
+* Models disagreement between annotators
+
 
 
 # Project Pipeline
+
 
 CIFAR-10 Images + CIFAR-10H Soft Labels
                     ↓
@@ -68,13 +110,30 @@ CIFAR-10 Images + CIFAR-10H Soft Labels
               Final Evaluation
 
 
+
+
 # Model Used
 
 The project uses ResNet-18 as the base CNN architecture.
 
-Modifications made:
-- Final fully connected layer changed to output 10 classes
-- Dropout layer added to reduce overfitting
+## Why ResNet-18?
+
+* Strong image feature extraction
+* Residual connections solve vanishing gradient problem
+* Good performance for image classification
+
+
+
+# Architecture Modifications
+
+The original ResNet-18 architecture was modified for CIFAR-10 images.
+
+### Modifications Made
+
+* Final fully connected layer changed to output 10 classes
+* Dropout layer added to reduce overfitting
+* Small-image optimization for CIFAR-10
+
 
 model.fc = nn.Sequential(
     nn.Dropout(0.3),
@@ -82,38 +141,105 @@ model.fc = nn.Sequential(
 )
 
 
+# What is Softmax?
+
+Softmax converts model outputs (logits) into probabilities.
+
+Example:
+
+Before Softmax:
+[2.1, 0.5, -1.2]
+
+After Softmax:
+[0.75, 0.20, 0.05]
+
+Properties:
+
+* Values between 0 and 1
+* Total probability sum = 1
+
+
+
+# What is LogSoftmax?
+
+LogSoftmax is the logarithm of softmax probabilities.
+
+Used because:
+KLDivLoss expects log probabilities
+
+Code used:
+preds = F.log_softmax(logits, dim=1
+
 
 # Loss Function
 
 KL Divergence Loss was used for training.
-
 loss_fn = nn.KLDivLoss(reduction='batchmean')
 
-KL Divergence was chosen because CIFAR-10H provides probability distributions instead of hard labels.
+## Why KL Divergence?
 
+KL Divergence compares probability distributions.
 
+This project predicts:
+
+* Human probability distributions
+* Soft labels
+
+So KL Divergence is more suitable than CrossEntropyLoss.
 
 # Training Details
 
-| Parameter | Value |
-|-----------|-------|
-| Optimizer | Adam |
-| Learning Rate | 1e-4 |
-| Epochs | 20 |
-| Batch Size | 64 |
-| Weight Decay | 1e-4 |
+| Parameter     | Value |
+| ------------- | ----- |
+| Optimizer     | Adam  |
+| Learning Rate | 1e-4  |
+| Epochs        | 20    |
+| Batch Size    | 64    |
+| Weight Decay  | 1e-4  |
+
+
+# Training Process
+
+The model training process included:
+
+1. Forward propagation
+2. LogSoftmax application
+3. KL divergence loss calculation
+4. Backpropagation
+5. Weight updates using Adam optimizer
 
 
 
-# Logging and Evaluation
+# Validation and Logging
 
 During training, the following were monitored:
-- Training Loss
-- Validation Loss
-- Test Loss
 
-Loss graphs were plotted to analyze model learning and overfitting.
+* Training Loss
+* Validation Loss
+* Test Loss
 
+Example logging output:
+Epoch 1/20 | Train Loss: 0.04 | Val Loss: 1.20
+
+Purpose of logging:
+
+* Monitor learning
+* Detect overfitting
+* Compare train and validation performance
+
+
+
+# Evaluation
+
+Final evaluation was performed using:
+* Test Loss
+* KL Divergence
+* Probability distribution comparison
+
+Example:
+Test Loss ≈ 1.27
+
+Lower loss indicates better prediction quality.
 
 
 # Sample Output
@@ -128,60 +254,80 @@ The model predicts probability distributions instead of a single class label.
 
 # Results
 
-### Observations
-- Training loss decreased steadily
-- Validation loss remained higher than training loss
-- Slight overfitting was observed
-- The model successfully learned soft-label distributions
+## Observations
 
-Example:
-Test Loss ≈ 1.27
+* Training loss decreased steadily
+* Validation loss remained higher than training loss
+* Slight overfitting was observed
+* The model successfully learned soft-label distributions
 
 
 # Repository Structure
 
 Predcting-Human-Annotator-Disagreement/
 │
-├── notebooks/
-├── outputs/
-├── models/
-├── README.md
-├── requirements.txt
-└── report/
+├── data/              # CIFAR-10H dataset files
+├── models/            # Saved trained models (.pth)
+├── notebooks/         # Google Colab / Jupyter notebooks
+├── outputs/           # Graphs, plots, evaluation metrics
+├── README.md          # Project overview and instructions
+├── requirements.txt   # Required Python libraries
+└── report/            # Final project report
 
 
 # How to Run
 
-## Clone Repository
+## 1. Clone Repository
 git clone https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement.git
 
 
-## Install Required Libraries
-pip install torch torchvision numpy matplotlib
+## 2. Install Required Libraries
+pip install torch torchvision numpy matplotlib scipy
 
-## Run Notebook
 
-Open the notebook in Google Colab and run all cells sequentially.
+## 3. Open Google Colab or Jupyter Notebook
+jupyter notebook
+
+## 4. Run Notebooks in Order
+
+* Data loading & preprocessing
+* Baseline model training
+* Improved model training
+* Evaluation metrics
+* Visualization and outputs
+
+
+# Repository Link
+
+[Project Repository](https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement?utm_source=chatgpt.com)
 
 
 # Concepts Used
 
-- Soft Labels
-- Human Uncertainty Modeling
-- KL Divergence
-- Deep Learning
-- CNNs
-- ResNet-18
-- PyTorch
+* Soft Labels
+* Hard Labels
+* Human Uncertainty Modeling
+* Entropy
+* KL Divergence
+* Deep Learning
+* CNNs
+* ResNet-18
+* PyTorch
+* LogSoftmax
+* Model Evaluation
 
 
 # Conclusion
 
-This project demonstrates how deep learning models can be trained to capture human disagreement and uncertainty in image classification tasks. Instead of predicting only one correct class, the model learns probability distributions using CIFAR-10H soft labels and KL Divergence loss.
+This project demonstrates how deep learning models can be trained to capture human disagreement and uncertainty in image classification tasks.
+
+Instead of predicting only one correct class, the model learns probability distributions using CIFAR-10H soft labels and KL Divergence loss.
+
+The project successfully models human uncertainty using deep learning and modified ResNet-18 architecture.
 
 
 # References
 
-1. https://github.com/jcpeterson/cifar-10h  
-2. https://www.cs.toronto.edu/~kriz/cifar.html  
-3. https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement
+1. [CIFAR-10H Repository](https://github.com/jcpeterson/cifar-10h?utm_source=chatgpt.com)
+2. [CIFAR-10 Dataset Information](https://www.cs.toronto.edu/~kriz/cifar.html?utm_source=chatgpt.com)
+3. [Project GitHub Repository](https://github.com/Sahithi3205/Predcting-Human-Annotator-Disagreement?utm_source=chatgpt.com)
